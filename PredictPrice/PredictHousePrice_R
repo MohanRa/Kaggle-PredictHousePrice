@@ -1,0 +1,218 @@
+This Document explains how to predict price with many variables in place
+Load the Training data
+```{r}
+setwd("D:\\Kaggle\\PredictHouse")
+housing<-read.csv("train.csv")
+df_housing=housing
+str(df_housing)
+```
+Above command helps to give the datatype and the factor variables of the data. Next Step is to find the missing values from the data provided
+```{r}
+colSums(is.na(df_housing))
+```
+Let us remove fields which has more 50% missing values
+```{r}
+df_housing=subset(df_housing,select = -c(PoolQC,Fence,MiscFeature,Alley,FireplaceQu))
+```
+For fields LotFrontage & GarageYrBlt we are replacing the missing values with mean of the columns 
+```{r}
+mean_Lfrontage=mean(df_housing$LotFrontage,na.rm = TRUE)
+df_housing$LotFrontage[is.na(df_housing$LotFrontage)]=mean_Lfrontage
+
+mean_GarageYrBlt=mean(df_housing$GarageYrBlt,na.rm = TRUE)
+df_housing$GarageYrBlt[is.na(df_housing$GarageYrBlt)]=mean_GarageYrBlt
+
+mean_Lfrontage
+mean_GarageYrBlt
+```
+
+Above method can be used to replace missing values or we can use libraries to impute missing values
+```{r}
+library(missForest)
+df_housing.imp<-missForest(df_housing)
+df_housing=df_housing.imp$ximp
+df_housing<-na.omit(df_housing)
+colSums(is.na(df_housing))
+```
+Now we have dataframe without missing values and we can see all  0's Next things is to convert categorical value to numbers of level 2
+```{r}
+levels(df_housing$Street)<-c(1,0)
+df_housing$Street<- as.numeric(levels(df_housing$Street))[df_housing$Street]
+
+levels(df_housing$Utilities)<-c(1,0)
+df_housing$Utilities<- as.numeric(levels(df_housing$Utilities))[df_housing$Utilities]
+
+levels(df_housing$CentralAir)<-c(1,0)
+df_housing$CentralAir<- as.numeric(levels(df_housing$CentralAir))[df_housing$CentralAir]
+```
+Factor variable more than level 2 can be converted into dummy variables for the remaining categorical variables
+```{r}
+
+dummy_MSZoning  <- data.frame(model.matrix( ~MSZoning , data = df_housing))
+dummy_MSZoning  <- dummy_MSZoning[,-1]
+dummy_LotShape<- data.frame(model.matrix( ~LotShape, data = df_housing))
+dummy_LotShape<-dummy_LotShape[,-1]
+dummy_LandContour<- data.frame(model.matrix( ~LandContour, data = df_housing))
+dummy_LandContour<-dummy_LandContour[,-1]
+dummy_LotConfig<- data.frame(model.matrix( ~LotConfig, data = df_housing))
+dummy_LotConfig<-dummy_LotConfig[,-1]
+dummy_LandSlope<- data.frame(model.matrix( ~LandSlope, data = df_housing))
+dummy_LandSlope<-dummy_LandSlope[,-1]
+dummy_Neighborhood<- data.frame(model.matrix( ~Neighborhood, data = df_housing))
+dummy_Neighborhood<-dummy_Neighborhood[,-1]
+dummy_Condition1<- data.frame(model.matrix( ~Condition1, data = df_housing))
+dummy_Condition1<-dummy_Condition1[,-1]
+dummy_Condition2<- data.frame(model.matrix( ~Condition2, data = df_housing))
+dummy_Condition2<-dummy_Condition2[,-1]
+dummy_BldgType<- data.frame(model.matrix( ~BldgType, data = df_housing))
+dummy_BldgType<-dummy_BldgType[,-1]
+dummy_HouseStyle<- data.frame(model.matrix( ~HouseStyle, data = df_housing))
+dummy_HouseStyle<-dummy_HouseStyle[,-1]
+dummy_RoofStyle<- data.frame(model.matrix( ~RoofStyle, data = df_housing))
+dummy_RoofStyle<-dummy_RoofStyle[,-1]
+dummy_RoofMatl<- data.frame(model.matrix( ~RoofMatl, data = df_housing))
+dummy_RoofMatl<-dummy_RoofMatl[,-1]
+dummy_Exterior1st<- data.frame(model.matrix( ~Exterior1st, data = df_housing))
+dummy_Exterior1st<-dummy_Exterior1st[,-1]
+dummy_Exterior2nd<- data.frame(model.matrix( ~Exterior2nd, data = df_housing))
+dummy_Exterior2nd<-dummy_Exterior2nd[,-1]
+dummy_MasVnrType<- data.frame(model.matrix( ~MasVnrType, data = df_housing))
+dummy_MasVnrType<-dummy_MasVnrType[,-1]
+dummy_ExterQual<- data.frame(model.matrix( ~ExterQual, data = df_housing))
+dummy_ExterQual<-dummy_ExterQual[,-1]
+dummy_ExterCond<- data.frame(model.matrix( ~ExterCond, data = df_housing))
+dummy_ExterCond<-dummy_ExterCond[,-1]
+dummy_Foundation<- data.frame(model.matrix( ~Foundation, data = df_housing))
+dummy_Foundation<-dummy_Foundation[,-1]
+dummy_BsmtQual<- data.frame(model.matrix( ~BsmtQual, data = df_housing))
+dummy_BsmtQual<-dummy_BsmtQual[,-1]
+dummy_BsmtCond<- data.frame(model.matrix( ~BsmtCond, data = df_housing))
+dummy_BsmtCond<-dummy_BsmtCond[,-1]
+dummy_BsmtFinType1<- data.frame(model.matrix( ~BsmtFinType1, data = df_housing))
+dummy_BsmtFinType1<-dummy_BsmtFinType1[,-1]
+dummy_BsmtExposure<- data.frame(model.matrix( ~BsmtExposure, data = df_housing))
+dummy_BsmtExposure<-dummy_BsmtExposure[,-1]
+dummy_BsmtFinType2<- data.frame(model.matrix( ~BsmtFinType2, data = df_housing))
+dummy_BsmtFinType2<-dummy_BsmtFinType2[,-1]
+dummy_Heating<- data.frame(model.matrix( ~Heating, data = df_housing))
+dummy_Heating<-dummy_Heating[,-1]
+dummy_HeatingQC<- data.frame(model.matrix( ~HeatingQC, data = df_housing))
+dummy_HeatingQC<-dummy_HeatingQC[,-1]
+dummy_Electrical<- data.frame(model.matrix( ~Electrical, data = df_housing))
+dummy_Electrical<-dummy_Electrical[,-1]
+dummy_KitchenQual<- data.frame(model.matrix( ~KitchenQual, data = df_housing))
+dummy_KitchenQual<-dummy_KitchenQual[,-1]
+dummy_Functional<- data.frame(model.matrix( ~Functional, data = df_housing))
+dummy_Functional<-dummy_Functional[,-1]
+dummy_GarageType<- data.frame(model.matrix( ~GarageType, data = df_housing))
+dummy_GarageType<-dummy_GarageType[,-1]
+dummy_GarageFinish<- data.frame(model.matrix( ~GarageFinish, data = df_housing))
+dummy_GarageFinish<-dummy_GarageFinish[,-1]
+dummy_GarageQual<- data.frame(model.matrix( ~GarageQual, data = df_housing))
+dummy_GarageQual<-dummy_GarageQual[,-1]
+dummy_GarageCond<- data.frame(model.matrix( ~GarageCond, data = df_housing))
+dummy_GarageCond<-dummy_GarageCond[,-1]
+dummy_PavedDrive<- data.frame(model.matrix( ~PavedDrive, data = df_housing))
+dummy_PavedDrive<-dummy_PavedDrive[,-1]
+dummy_SaleType<- data.frame(model.matrix( ~SaleType, data = df_housing))
+dummy_SaleType<-dummy_SaleType[,-1]
+dummy_SaleCondition<- data.frame(model.matrix( ~SaleCondition, data = df_housing))
+dummy_SaleCondition<-dummy_SaleCondition[,-1]
+
+```
+Before adding the dummy variable to the original dataframe, It is good to remove the fields from the dataframe
+```{r}
+df_housing=subset(df_housing,select=-c(LotShape,LandContour,LotConfig,LandSlope,Neighborhood,Condition1,Condition2,BldgType,HouseStyle,RoofStyle,RoofMatl,Exterior1st,Exterior2nd,MasVnrType,ExterQual,ExterCond,Foundation,BsmtQual,BsmtCond,BsmtFinType1,BsmtExposure,BsmtFinType2,Heating,HeatingQC,Electrical,KitchenQual,Functional,GarageType,GarageFinish,GarageQual,GarageCond,PavedDrive,SaleType,SaleCondition))
+
+```
+Add the dummy variables to the dataframe
+```{r}
+df_housing_cat<- cbind(df_housing, dummy_MSZoning)
+df_housing_cat<- cbind(df_housing_cat, dummy_LotShape)
+df_housing_cat<- cbind(df_housing_cat, dummy_LandContour)
+df_housing_cat<- cbind(df_housing_cat, dummy_LotConfig)
+df_housing_cat<- cbind(df_housing_cat, dummy_LandSlope)
+df_housing_cat<- cbind(df_housing_cat, dummy_Neighborhood)
+df_housing_cat<- cbind(df_housing_cat, dummy_Condition1)
+df_housing_cat<- cbind(df_housing_cat, dummy_Condition2)
+df_housing_cat<- cbind(df_housing_cat, dummy_BldgType)
+df_housing_cat<- cbind(df_housing_cat, dummy_HouseStyle)
+df_housing_cat<- cbind(df_housing_cat, dummy_RoofStyle)
+df_housing_cat<- cbind(df_housing_cat, dummy_RoofMatl)
+df_housing_cat<- cbind(df_housing_cat, dummy_Exterior1st)
+df_housing_cat<- cbind(df_housing_cat, dummy_Exterior2nd)
+df_housing_cat<- cbind(df_housing_cat, dummy_MasVnrType)
+df_housing_cat<- cbind(df_housing_cat, dummy_ExterQual)
+df_housing_cat<- cbind(df_housing_cat, dummy_ExterCond)
+df_housing_cat<- cbind(df_housing_cat, dummy_Foundation)
+df_housing_cat<- cbind(df_housing_cat, dummy_BsmtQual)
+df_housing_cat<- cbind(df_housing_cat, dummy_BsmtCond)
+df_housing_cat<- cbind(df_housing_cat, dummy_BsmtFinType1)
+df_housing_cat<- cbind(df_housing_cat, dummy_BsmtExposure)
+df_housing_cat<- cbind(df_housing_cat, dummy_BsmtFinType2)
+df_housing_cat<- cbind(df_housing_cat, dummy_Heating)
+df_housing_cat<- cbind(df_housing_cat, dummy_HeatingQC)
+df_housing_cat<- cbind(df_housing_cat, dummy_Electrical)
+df_housing_cat<- cbind(df_housing_cat, dummy_KitchenQual)
+df_housing_cat<- cbind(df_housing_cat, dummy_Functional)
+df_housing_cat<- cbind(df_housing_cat, dummy_GarageType)
+df_housing_cat<- cbind(df_housing_cat, dummy_GarageFinish)
+df_housing_cat<- cbind(df_housing_cat, dummy_GarageQual)
+df_housing_cat<- cbind(df_housing_cat, dummy_GarageCond)
+df_housing_cat<- cbind(df_housing_cat, dummy_PavedDrive)
+df_housing_cat<- cbind(df_housing_cat, dummy_SaleType)
+df_housing_cat<- cbind(df_housing_cat, dummy_SaleCondition)
+options(max.print = 100000)
+
+```
+Use Backward Elimination methods and StepAIC function to deduce the variables that are important for running the model
+```{r}
+library(gbm)
+final_gbm=gbm(SalePrice ~ MSSubClass + MSZoning + LotFrontage + 
+                LotArea + Street + Utilities + OverallQual + OverallCond + 
+                YearBuilt + YearRemodAdd + MasVnrArea + BsmtFinSF1 + BsmtFinSF2 + 
+                BsmtUnfSF + X1stFlrSF + X2ndFlrSF + BedroomAbvGr + KitchenAbvGr + 
+                TotRmsAbvGrd + GarageCars + GarageArea + WoodDeckSF + ScreenPorch + 
+                PoolArea + LandContourHLS + LandContourLow + LandContourLvl + 
+                LotConfigCulDSac + LotConfigFR2 + LandSlopeMod + LandSlopeSev + 
+                NeighborhoodClearCr + NeighborhoodCollgCr + NeighborhoodCrawfor + 
+                NeighborhoodEdwards + NeighborhoodGilbert + NeighborhoodMitchel + 
+                NeighborhoodNAmes + NeighborhoodNoRidge + NeighborhoodNPkVill + 
+                NeighborhoodNridgHt + NeighborhoodNWAmes + NeighborhoodOldTown + 
+                NeighborhoodSawyer + NeighborhoodStoneBr + NeighborhoodTimber + 
+                Condition1Norm + Condition1RRAe + Condition2PosA + Condition2PosN + 
+                Condition2RRAe + BldgTypeDuplex + BldgTypeTwnhs + BldgTypeTwnhsE + 
+                HouseStyle1.5Unf + HouseStyle1Story + HouseStyle2.5Fin + 
+                HouseStyleSFoyer + HouseStyleSLvl + RoofStyleShed + RoofMatlCompShg + 
+                RoofMatlMembran + RoofMatlMetal + RoofMatlRoll + RoofMatlTar.Grv + 
+                RoofMatlWdShake + RoofMatlWdShngl + Exterior1stHdBoard + 
+                Exterior1stPlywood + Exterior2ndImStucc + MasVnrTypeNone + 
+                MasVnrTypeStone + ExterQualGd + ExterQualTA + ExterCondGd + 
+                FoundationWood + BsmtQualFa + BsmtQualGd + BsmtQualTA + BsmtCondTA + 
+                BsmtFinType1GLQ + BsmtExposureGd + BsmtExposureNo + HeatingQCGd + 
+                HeatingQCTA + KitchenQualFa + KitchenQualGd + KitchenQualTA + 
+                FunctionalSev + FunctionalTyp + GarageFinishRFn + GarageQualFa + 
+                GarageQualGd + GarageQualPo + GarageQualTA + GarageCondFa + 
+                GarageCondGd + GarageCondPo + GarageCondTA + SaleTypeCon + 
+                SaleTypeConLD + SaleTypeNew + SaleConditionNormal + Exterior1stBrkFace + 
+                Exterior1stMetalSd + MasVnrTypeBrkFace,data = df_housing_cat,distribution = "gaussian",
+                n.trees = 10000,shrinkage = 0.01, interaction.depth = 4)
+```
+Now use this predictor for predicting test data value. Follow the same procedure on removing, Adding the impute values by creating new dataframe df_housing_test_cat. Only additonal operation to do is to make sure all variables that are used in the prediction are available. if not avaialble add the missing variable and set it to 0 
+```{r}
+df_colnames=colnames(df_housing_test_cat)
+df_org_stat<-c("MSSubClass","MSZoning","LotFrontage","LotArea","Street","Utilities","OverallQual","OverallCond","YearBuilt","YearRemodAdd","MasVnrArea","BsmtFinSF1","BsmtFinSF2","BsmtUnfSF","X1stFlrSF","X2ndFlrSF","BedroomAbvGr","KitchenAbvGr","TotRmsAbvGrd","GarageCars","GarageArea","WoodDeckSF","ScreenPorch","PoolArea","LandContourHLS","LandContourLow","LandContourLvl","LotConfigCulDSac","LotConfigFR2","LandSlopeMod","LandSlopeSev","NeighborhoodClearCr","NeighborhoodCollgCr","NeighborhoodCrawfor","NeighborhoodEdwards","NeighborhoodGilbert","NeighborhoodMitchel","NeighborhoodNAmes","NeighborhoodNoRidge","NeighborhoodNPkVill","NeighborhoodNridgHt","NeighborhoodNWAmes","NeighborhoodOldTown","NeighborhoodSawyer","NeighborhoodStoneBr","NeighborhoodTimber","Condition1Norm","Condition1RRAe","Condition2PosA","Condition2PosN","Condition2RRAe","BldgTypeDuplex","BldgTypeTwnhs","BldgTypeTwnhsE","HouseStyle1.5Unf","HouseStyle1Story","HouseStyle2.5Fin","HouseStyleSFoyer","HouseStyleSLvl","RoofStyleShed","RoofMatlCompShg","RoofMatlMembran","RoofMatlMetal","RoofMatlRoll","RoofMatlTar.Grv","RoofMatlWdShake","RoofMatlWdShngl","Exterior1stHdBoard","Exterior1stPlywood","Exterior2ndImStucc","MasVnrTypeNone","MasVnrTypeStone","ExterQualGd","ExterQualTA","ExterCondGd","FoundationWood","BsmtQualFa","BsmtQualGd","BsmtQualTA","BsmtCondTA","BsmtFinType1GLQ","BsmtExposureGd","BsmtExposureNo","HeatingQCGd","HeatingQCTA","KitchenQualFa","KitchenQualGd","KitchenQualTA","FunctionalSev","FunctionalTyp","GarageFinishRFn","GarageQualFa","GarageQualGd","GarageQualPo","GarageQualTA","GarageCondFa","GarageCondGd","GarageCondPo","GarageCondTA","SaleTypeCon","SaleTypeConLD","SaleTypeNew","SaleConditionNormal","Exterior1stBrkFace","Exterior1stMetalSd","MasVnrTypeBrkFace")
+df_diff<-setdiff(df_org_stat,df_colnames)
+for (missedvariable in df_diff) {
+  df_housing_test_cat[missedvariable]=0
+}
+```
+Now use the generated frame df_housing_test_cat for prediction and write the final output to csv file
+```{r}
+Predict_price <- predict(final_gbm,newdata =df_housing_test_cat,n.trees = 10000,type="link")
+df_housing_test_cat$SalePrice=Predict_price
+df_final<-subset(df_housing_test_cat,select = c(Id,SalePrice))
+colnames(df_final)
+write.csv(df_final,file = "Submission.csv")
+```
+
